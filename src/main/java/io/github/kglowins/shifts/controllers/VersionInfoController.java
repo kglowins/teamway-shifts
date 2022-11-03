@@ -20,7 +20,7 @@ public class VersionInfoController {
     }
 
     private void createVersionInfoEndpoint() {
-        get("/version", (request, response) -> {
+        get("/monitoring/version", (request, response) -> {
             response.type(JSON_UTF_8.toString());
             return versionInfoProvider.readVersionInfo();
         }, new Gson()::toJson);
