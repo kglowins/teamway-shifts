@@ -10,7 +10,7 @@ public class ShiftsApp {
     public static void main(String[] args) {
 
         // Guice
-        Injector injector = createInjector(new CommonModule());
+        var dependencyInjector = createInjector(new CommonModule());
     }
 
 }
