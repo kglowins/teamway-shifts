@@ -11,7 +11,6 @@ public class ShiftsApp {
     public static void main(String[] args) {
 
         var dependencyInjector = createInjector(new CommonModule(), new LocalDevModule());
-        var h2Runner = dependencyInjector.getInstance(H2Runner.class);
     }
 
 }
