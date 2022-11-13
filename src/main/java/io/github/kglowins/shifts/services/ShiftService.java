@@ -6,12 +6,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.github.kglowins.shifts.controllers.exceptions.BadRequestException;
 import io.github.kglowins.shifts.controllers.exceptions.NotFoundException;
-import io.github.kglowins.shifts.db.Repository;
-import io.github.kglowins.shifts.db.ShiftDTO;
-import java.util.Date;
+import io.github.kglowins.shifts.repository.Repository;
+import io.github.kglowins.shifts.controllers.dto.ShiftDTO;
+import java.time.LocalDate;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @Singleton
+@Slf4j
 public class ShiftService {
 
     private final Repository repository;
@@ -32,13 +34,14 @@ public class ShiftService {
                 shiftDTO.employeeId()));
         }
 
-        List<Date> shiftDaysOfEmployee = repository.selectShiftDaysOfEmployee(shiftDTO.employeeId());
-        if (shiftDaysOfEmployee.contains(shiftDTO.shiftDate())) {
-            throw new BadRequestException(format("Employee of id=%d already has shift on %s",
+        List<LocalDate> shiftDaysOfEmployee = repository.selectShiftDaysOfEmployee(shiftDTO.employeeId());
+        shiftDaysOfEmployee.forEach(d -> {
+               if (d.equals(shiftDTO.shiftDate())) {
+                throw new BadRequestException(format("Employee of id=%d already has shift on %s",
                     shiftDTO.employeeId(),
-                    shiftDTO.shiftDate().toString()));
-        }
-
+                    shiftDTO.shiftDate()));
+            }
+        });
         repository.insertShift(shiftDTO);
     }
 

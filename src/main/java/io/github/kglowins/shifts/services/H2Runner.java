@@ -1,6 +1,5 @@
 package io.github.kglowins.shifts.services;
 
-import com.google.inject.Singleton;
 import io.jenetics.facilejdbc.UncheckedSQLException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.sql.SQLException;
 import java.util.List;
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcDataSource;
@@ -23,26 +23,33 @@ public class H2Runner {
     private static final String TCP_PORT = "8082";
     private static final String WEB_PORT = "8083";
     private static final List<String> SCRIPTS = List.of(
-        "0000-initial-schema.sql"
+        "0000-wipe.sql",
+        "0001-initial-schema.sql"
     );
     private static final String SCRIPT_PATH_TEMPLATE = "/sql/%s";
 
+    private static Boolean isUp = false;
+
     public H2Runner() {
         try {
-            startH2();
+            startH2WithSchema();
         } catch (SQLException e) {
             log.error("Failed to start H2", e);
+            isUp = false;
             throw new UncheckedSQLException(e);
         }
-        SCRIPTS.forEach(this::runSQLScript);
     }
 
-    private void startH2() throws SQLException {
-        log.info("Starting H2");
-        Server h2TcpServer = Server.createTcpServer("-tcpPort", TCP_PORT, "-tcpAllowOthers");
-        h2TcpServer.start();
-        Server h2WebServer = Server.createWebServer("-webPort", WEB_PORT, "-webAllowOthers");
-        h2WebServer.start();
+    private void startH2WithSchema() throws SQLException {
+        if (!isUp) {
+            log.info("Starting H2");
+            Server h2TcpServer = Server.createTcpServer("-tcpPort", TCP_PORT, "-tcpAllowOthers");
+            h2TcpServer.start();
+            Server h2WebServer = Server.createWebServer("-webPort", WEB_PORT, "-webAllowOthers");
+            h2WebServer.start();
+            isUp = true;
+        }
+        SCRIPTS.forEach(this::runSQLScript);
     }
 
     public DataSource getDataSource() {

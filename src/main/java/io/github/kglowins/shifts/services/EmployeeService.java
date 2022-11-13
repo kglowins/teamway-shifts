@@ -1,13 +1,16 @@
 package io.github.kglowins.shifts.services;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.github.kglowins.shifts.controllers.exceptions.BadRequestException;
-import io.github.kglowins.shifts.db.EmployeeDTO;
-import io.github.kglowins.shifts.db.Repository;
-import io.github.kglowins.shifts.db.ShiftDTO;
+import io.github.kglowins.shifts.controllers.dto.EmployeeDTO;
+import io.github.kglowins.shifts.controllers.exceptions.NotFoundException;
+import io.github.kglowins.shifts.repository.Repository;
+import io.github.kglowins.shifts.controllers.dto.ShiftDTO;
 import java.util.List;
 
 
@@ -25,14 +28,23 @@ public class EmployeeService {
     }
 
     public EmployeeDTO getEmployees(Long id) {
+        if (!repository.employeeExists(id)) {
+            throw new NotFoundException(format("Employee of id=%d does not exist", id));
+        }
         return repository.selectEmployee(id);
     }
 
     public void addEmployee(EmployeeDTO employeeDTO) {
+        if (isNull(employeeDTO.lastName()) || (nonNull(employeeDTO.lastName()) && employeeDTO.lastName().trim().isEmpty())) {
+            throw new BadRequestException("Employee last name cannot be null or empty");
+        }
         repository.insertEmployee(employeeDTO);
     }
 
     public void removeEmployee(Long id, Boolean removeShiftsBefore) {
+        if (!repository.employeeExists(id)) {
+            throw new NotFoundException(format("Employee of id=%d does not exist", id));
+        }
         List<ShiftDTO> shiftsOfEmployee = repository.selectShiftsOfEmployee(id);
         List<Long> shiftsOfEmployeeIds = List.of();
 
