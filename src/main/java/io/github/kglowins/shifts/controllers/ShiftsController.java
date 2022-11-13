@@ -11,7 +11,7 @@ import static spark.Spark.post;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.github.kglowins.shifts.db.ShiftDTO;
+import io.github.kglowins.shifts.controllers.dto.ShiftDTO;
 import io.github.kglowins.shifts.services.ShiftService;
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,14 +19,17 @@ import java.util.stream.Stream;
 @Singleton
 public class ShiftsController {
 
+    private static final String V1_SHIFTS = "/v1/shifts";
+    private static final String V1_SHIFTS_ID = V1_SHIFTS + "/:id";
+
     private final ShiftService shiftService;
 
     private final Gson gson;
 
     @Inject
-    public ShiftsController(ShiftService shiftService) {
+    public ShiftsController(ShiftService shiftService, Gson gson) {
         this.shiftService = shiftService;
-        gson = new Gson();
+        this.gson = gson;
         createGetShiftsEndpoint();
         createPostShiftEndpoint();
         createDeleteShiftEndpoint();
@@ -35,14 +38,14 @@ public class ShiftsController {
     }
 
     private void createGetShiftsEndpoint() {
-        get("/v1/shifts", (request, response) -> {
+        get(V1_SHIFTS, (request, response) -> {
             response.type(JSON_UTF_8.toString());
             return shiftService.getShifts();
-        }, new Gson()::toJson);
+        }, gson::toJson);
     }
 
     private void createPostShiftEndpoint() {
-        post("/v1/shifts", (request, response) -> {
+        post(V1_SHIFTS, (request, response) -> {
             ShiftDTO shiftDTO = gson.fromJson(request.body(), ShiftDTO.class);
             shiftService.addShift(shiftDTO);
             response.status(SC_CREATED);
@@ -51,7 +54,7 @@ public class ShiftsController {
     }
 
     public void createDeleteShiftEndpoint() {
-        delete("/v1/shifts/:id", (request, response) -> {
+        delete(V1_SHIFTS_ID, (request, response) -> {
             response.status(SC_NO_CONTENT);
             Long id = Long.parseLong(request.params("id"));
             shiftService.removeShifts(List.of(id));
@@ -61,7 +64,7 @@ public class ShiftsController {
     }
 
     public void createDeleteShiftsEndpoint() {
-        delete("/v1/shifts", (request, response) -> {
+        delete(V1_SHIFTS, (request, response) -> {
             List<Long> shiftIds = Stream.of(gson.fromJson(request.body(), Long[].class)).collect(toList());
             shiftService.removeShifts(shiftIds);
             response.status(SC_NO_CONTENT);
@@ -70,10 +73,10 @@ public class ShiftsController {
     }
 
     public void createGetShiftsOfEmployeeEndpoint() {
-        get("/v1/shifts/employee/:id", (request, response) -> {
+        get(V1_SHIFTS + "/employee/:id", (request, response) -> {
             Long id = Long.parseLong(request.params("id"));
             response.type(JSON_UTF_8.toString());
             return shiftService.getShiftsOfEmployee(id);
-        }, new Gson()::toJson);
+        }, gson::toJson);
     }
 }

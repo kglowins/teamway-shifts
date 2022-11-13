@@ -1,21 +1,25 @@
-package io.github.kglowins.shifts.db;
+package io.github.kglowins.shifts.repository;
 
 
 import static io.jenetics.facilejdbc.Dctor.field;
 import static io.jenetics.facilejdbc.Param.value;
 import static io.jenetics.facilejdbc.Param.values;
-import static java.util.stream.Collectors.toList;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.github.kglowins.shifts.controllers.dto.EmployeeDTO;
+import io.github.kglowins.shifts.controllers.dto.ShiftDTO;
+import io.github.kglowins.shifts.enums.ShiftWindow;
 import io.jenetics.facilejdbc.Dctor;
 import io.jenetics.facilejdbc.Query;
 import io.jenetics.facilejdbc.RowParser;
 import io.jenetics.facilejdbc.Transactional;
 import io.jenetics.facilejdbc.UncheckedSQLException;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import javax.sql.DataSource;
 import lombok.SneakyThrows;
@@ -25,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 @Slf4j
 public class Repository {
+
     private static final String INSERT_EMPLOYEE = "INSERT INTO employees (last_name) VALUES (:last_name)";
     private static final String SELECT_EMPLOYEES = "SELECT id, last_name FROM employees";
     private static final String SELECT_EMPLOYEE = "SELECT id, last_name FROM employees WHERE id=:id";
@@ -42,8 +47,9 @@ public class Repository {
 
     private static final Dctor<EmployeeDTO> EMPLOYEE_DCTOR = Dctor.of(
         field("id", EmployeeDTO::id),
-        field("last_name", EmployeeDTO::lastName)
+        field("last_name", dto -> dto.lastName().trim())
     );
+
     private static final RowParser<EmployeeDTO> EMPLOYEE_PARSER = (row, conn) -> new EmployeeDTO(
         row.getLong("id"),
         row.getString("last_name")
@@ -52,15 +58,15 @@ public class Repository {
     private static final RowParser<ShiftDTO> SHIFT_PARSER = (row, conn) -> new ShiftDTO(
         row.getLong("id"),
         row.getLong("employee_id"),
-        row.getDate("shift_date"),
-        ShiftWindow.valueOf(row.getString("shift_window"))
+        row.getDate("shift_date").toLocalDate(),
+        ShiftWindow.fromDisplayName(row.getString("shift_window"))
     );
 
     private static final Dctor<ShiftDTO> SHIFT_DCTOR = Dctor.of(
         field("id", ShiftDTO::id),
         field("employee_id", ShiftDTO::employeeId),
-        field("shift_date", ShiftDTO::shiftDate),
-        field("shift_window", dto -> dto.shiftWindow().name())
+        field("shift_date", dto -> Date.valueOf(dto.shiftDate())),
+        field("shift_window", dto -> dto.shiftWindow().displayName())
     );
 
     private final DataSource dataSource;
@@ -120,11 +126,11 @@ public class Repository {
     }
 
     @SneakyThrows
-    public List<Date> selectShiftDaysOfEmployee(Long employeeId) {
+    public List<LocalDate> selectShiftDaysOfEmployee(Long employeeId) {
         var connection = dataSource.getConnection();
         var query = Query.of(SELECT_SHIFT_DAYS_OF_EMPLOYEE).on(values("employee_id", employeeId));
         List<Instant> shiftDaysAsInstant = query.as(RowParser.instant(1).list(), connection);
-        return shiftDaysAsInstant.stream().map(Date::from).collect(toList());
+        return shiftDaysAsInstant.stream().map(i -> LocalDate.ofInstant(i, ZoneId.systemDefault())).toList();
     }
 
     @SneakyThrows

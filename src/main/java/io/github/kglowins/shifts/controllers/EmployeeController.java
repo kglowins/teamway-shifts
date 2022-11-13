@@ -11,21 +11,23 @@ import static spark.Spark.post;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.github.kglowins.shifts.db.EmployeeDTO;
+import io.github.kglowins.shifts.controllers.dto.EmployeeDTO;
 import io.github.kglowins.shifts.services.EmployeeService;
-import java.util.stream.Collectors;
 
 @Singleton
 public class EmployeeController {
+
+    private static final String V1_EMPLOYEE = "/v1/employees";
+    private static final String V1_EMPLOYEE_ID = V1_EMPLOYEE + "/:id";
 
     private final EmployeeService employeeService;
 
     private final Gson gson;
 
     @Inject
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, Gson gson) {
         this.employeeService = employeeService;
-        gson = new Gson();
+        this.gson = gson;
         createGetEmployeesEndpoint();
         createGetEmployeeEndpoint();
         createPostEmployeeEndpoint();
@@ -33,22 +35,22 @@ public class EmployeeController {
     }
 
     private void createGetEmployeesEndpoint() {
-        get("/v1/employee", (request, response) -> {
+        get(V1_EMPLOYEE, (request, response) -> {
             response.type(JSON_UTF_8.toString());
             return employeeService.getEmployees();
-        }, new Gson()::toJson);
+        }, gson::toJson);
     }
 
     private void createGetEmployeeEndpoint() {
-        get("/v1/employee/:id", (request, response) -> {
+        get(V1_EMPLOYEE_ID, (request, response) -> {
             response.type(JSON_UTF_8.toString());
             Long id = Long.parseLong(request.params("id"));
             return employeeService.getEmployees(id);
-        }, new Gson()::toJson);
+        }, gson::toJson);
     }
 
     private void createPostEmployeeEndpoint() {
-        post("/v1/employee", (request, response) -> {
+        post(V1_EMPLOYEE, (request, response) -> {
             EmployeeDTO employeeDTO = gson.fromJson(request.body(), EmployeeDTO.class);
             employeeService.addEmployee(employeeDTO);
             response.status(SC_CREATED);
@@ -57,14 +59,12 @@ public class EmployeeController {
     }
 
     private void createDeleteEmployeeEndpoint() {
-        delete("/v1/employee/:id", (request, response) -> {
+        delete(V1_EMPLOYEE_ID, (request, response) -> {
             response.status(SC_NO_CONTENT);
             Long id = Long.parseLong(request.params("id"));
             Boolean force = request.queryParams().stream().map(String::toLowerCase).collect(toSet()).contains("force");
             employeeService.removeEmployee(id, force);
             return "";
-        }, new Gson()::toJson);
+        }, gson::toJson);
     }
-
-
 }
