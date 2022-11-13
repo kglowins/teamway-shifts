@@ -36,12 +36,7 @@ public class ShiftService {
 
         List<LocalDate> shiftDaysOfEmployee = repository.selectShiftDaysOfEmployee(shiftDTO.employeeId());
         shiftDaysOfEmployee.forEach(d -> {
-            log.info("------------>>>>>>>>>>>>>>> {}", d);
-            log.info("----------###-->>>>>>>>>>>>>>> {}", shiftDTO.shiftDate());
-            log.info("----------&&-->>>>>>>>>>>>>>> {}", d.equals(shiftDTO.shiftDate()));
-            log.info("----------**-->>>>>>>>>>>>>>> {}", d.isEqual(shiftDTO.shiftDate()));
-
-            if (d.equals(shiftDTO.shiftDate())) {
+               if (d.equals(shiftDTO.shiftDate())) {
                 throw new BadRequestException(format("Employee of id=%d already has shift on %s",
                     shiftDTO.employeeId(),
                     shiftDTO.shiftDate()));
