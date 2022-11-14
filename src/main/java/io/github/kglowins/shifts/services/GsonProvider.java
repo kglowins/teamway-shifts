@@ -15,7 +15,7 @@ public class GsonProvider {
     private GsonProvider() {
     }
 
-    public static Gson provide() {
+    public static Gson provideConfiguredGson() {
         return new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter().nullSafe())
             .registerTypeAdapter(ShiftWindow.class, new ShiftWindowAdapter().nullSafe())

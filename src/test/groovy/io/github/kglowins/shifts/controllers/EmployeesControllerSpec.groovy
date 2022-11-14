@@ -28,7 +28,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
         def employeeDTO = new EmployeeDTO(null, lastName)
 
         expect:
-        givenBaseUri()
+        requestSpec
                 .contentType(JSON)
                 .body(employeeDTO)
                 .when()
@@ -49,7 +49,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
         def employeeDTO = new EmployeeDTO(null, lastName)
 
         expect:
-        givenBaseUri()
+        requestSpec
                 .contentType(JSON)
                 .body(employeeDTO)
                 .when()
@@ -66,7 +66,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
 
     def "should not add employee when invalid field name"() {
         given:
-        givenBaseUri()
+        requestSpec
                 .contentType(JSON)
                 .body("{\"last name\":\"No underscore\"}")
                 .when()
@@ -78,7 +78,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
 
     def "should get employee with incremented id" () {
         given:
-        def response = givenBaseUri()
+        def response = requestSpec
                 .when()
                 .get(EMPLOYEES_ENDPOINT + "/2")
                 .then()
@@ -91,7 +91,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
 
     def "should get employees list" () {
         given:
-        def response = givenBaseUri()
+        def response = requestSpec
                 .when()
                 .get(EMPLOYEES_ENDPOINT)
                 .then()
@@ -104,7 +104,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
 
     def "should delete employee"() {
         given:
-        def response = givenBaseUri()
+        def response = requestSpec
                 .when()
                 .delete(EMPLOYEES_ENDPOINT + "/1")
                 .then()
@@ -117,7 +117,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
 
     def "should warn when try to get non-existing employee"() {
         given:
-        def response = givenBaseUri()
+        def response = requestSpec
                 .when()
                 .get(EMPLOYEES_ENDPOINT + "/9")
                 .then()
@@ -129,7 +129,7 @@ class EmployeesControllerSpec extends BaseControllerSpec {
 
     def "should warn when try to delete non-existing employee"() {
         given:
-        def response = givenBaseUri()
+        def response = requestSpec
                 .when()
                 .delete(EMPLOYEES_ENDPOINT + "/9")
                 .then()
