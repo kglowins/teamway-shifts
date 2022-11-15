@@ -1,6 +1,7 @@
 package io.github.kglowins.shifts.controllers
 
 import com.google.inject.Inject
+import groovy.util.logging.Slf4j
 import io.github.kglowins.shifts.controllers.dto.EmployeeDTO
 import io.github.kglowins.shifts.controllers.dto.ShiftDTO
 import io.github.kglowins.shifts.services.EmployeeService
@@ -20,6 +21,7 @@ import spock.lang.Stepwise
 import static io.restassured.http.ContentType.JSON
 
 @Stepwise
+@Slf4j
 class ShiftsControllerSpec extends BaseControllerSpec {
 
     @Shared
@@ -33,10 +35,21 @@ class ShiftsControllerSpec extends BaseControllerSpec {
     @Inject
     ShiftsController shiftsController
 
+    @Shared
+    @Inject
+    EmployeeController employeeController
+
 
     def setupSpec() {
+        repository.wipeOutTables()
+        log.info("---- >>> Adding test employees vis service...")
         employeeService.addEmployee(new EmployeeDTO(null, "Glowinski"))
         employeeService.addEmployee(new EmployeeDTO(null, "Teamway"))
+        log.info("---- >>> Added test employees vis service...")
+
+        employeeService.getEmployees().forEach(e -> log.info("--- >>   {}", e.id()))
+
+
     }
 
     @Unroll
@@ -48,7 +61,7 @@ class ShiftsControllerSpec extends BaseControllerSpec {
                 shiftWindow)
 
         expect:
-        givenBaseUri()
+        requestSpec
                 .contentType(JSON)
                 .body(shiftDTO)
                 .when()
@@ -69,7 +82,7 @@ class ShiftsControllerSpec extends BaseControllerSpec {
         def shiftDTO = new ShiftDTO(null, 9L, LocalDate.parse("2022-11-12", DateTimeFormatter.ISO_LOCAL_DATE), FROM_08_TO_16)
 
         expect:
-        givenBaseUri()
+        requestSpec
                 .contentType(JSON)
                 .body(shiftDTO)
                 .when()
@@ -84,7 +97,7 @@ class ShiftsControllerSpec extends BaseControllerSpec {
         def shiftDTO = new ShiftDTO(null, 1L, LocalDate.parse("2022-11-12", DateTimeFormatter.ISO_LOCAL_DATE), FROM_08_TO_16)
 
         expect:
-        givenBaseUri()
+        requestSpec
                 .contentType(JSON)
                 .body(shiftDTO)
                 .when()
@@ -99,9 +112,13 @@ class ShiftsControllerSpec extends BaseControllerSpec {
 
     }
 
+    @Ignore("Not implemented")
+    def "should return 404 for get non-existing shift"() {
+    }
+
     def "should get shifts for a given employee"() {
         given:
-        def response = givenBaseUri()
+        def response = requestSpec
             .when()
             .get(SHIFTS_ENDPOINT + "/employee/1")
             .then()
@@ -117,7 +134,44 @@ class ShiftsControllerSpec extends BaseControllerSpec {
     }
 
     @Ignore("Not implemented")
+    def "should not create shift with invalid shift_window"() {
+    }
+
+    @Ignore("Not implemented")
     def "should delete shift"() {
+    }
+
+    // TODO move below 2 to a separate Spec with e2e tests
+    def "should not delete employee with existing shifts"() {
+        given:
+        def delEmployeeResponse = requestSpec
+                .when()
+                .delete("/v1/employees/1")
+                .then()
+                .log().all()
+
+        expect:
+        delEmployeeResponse.statusCode(400)
+    }
+
+    def "should delete shifts when employee is deleted with force query param"() {
+        given:
+        def delEmployeeResponse = requestSpec
+                .when()
+                .delete("/v1/employees/1?force")
+                .then()
+                .log().all()
+        when:
+        def getShiftsResponse = requestSpec
+                .when()
+                .get(SHIFTS_ENDPOINT + "/employee/1")
+                .then()
+                .log().all()
+
+        then:
+        delEmployeeResponse.statusCode(204)
+        getShiftsResponse.statusCode(200)
+        getShiftsResponse.extract().as(ShiftDTO[].class).length == 0
     }
 
 }

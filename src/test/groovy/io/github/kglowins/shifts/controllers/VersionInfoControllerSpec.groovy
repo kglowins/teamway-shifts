@@ -1,26 +1,25 @@
 package io.github.kglowins.shifts.controllers
 
+import com.google.gson.Gson
 import com.google.inject.Inject
 import groovy.util.logging.Slf4j
 import io.github.kglowins.shifts.controllers.exceptions.ErrorHandler
 import io.github.kglowins.shifts.guicemodules.LocalDevModule
-import io.github.kglowins.shifts.services.GsonProvider
+import io.github.kglowins.shifts.guicemodules.UtilModule
+import io.github.kglowins.shifts.helpers.RequestSpecificationProvider
 import io.github.kglowins.shifts.services.VersionInfoProvider
 import io.github.kglowins.shifts.services.identity.IdentityService
-import io.restassured.config.ObjectMapperConfig
-import io.restassured.mapper.ObjectMapperType
+import io.restassured.specification.RequestSpecification
 import spock.guice.UseModules
 import spock.lang.Shared
 import spock.lang.Specification
 
 import javax.inject.Named
 
-import static io.restassured.RestAssured.config
-import static io.restassured.RestAssured.given
 
 
 @Slf4j
-@UseModules(LocalDevModule)
+@UseModules([UtilModule, LocalDevModule])
 class VersionInfoControllerSpec extends Specification {
 
     @Shared
@@ -36,19 +35,12 @@ class VersionInfoControllerSpec extends Specification {
     @Named("localhost")
     String baseUri
 
-    def givenBaseUri() {
-        return given()
-                .config(config()
-                        .objectMapperConfig(
-                                new ObjectMapperConfig(ObjectMapperType.GSON)
-                                        .gsonObjectMapperFactory(
-                                                (type, str) -> GsonProvider.provide()
-                                        )
-                        )
-                )
-                .baseUri(baseUri)
-                .log().all()
-    }
+    @Inject
+    @Shared
+    Gson gson
+
+    @Shared
+    RequestSpecification requestSpec = RequestSpecificationProvider.of(gson, baseUri)
 
     @Shared
     @Inject
@@ -69,7 +61,7 @@ class VersionInfoControllerSpec extends Specification {
         identityService.isAdmin(_) >> true
 
         expect:
-        givenBaseUri().when().get(VERSION_ENDPOINT).then().log().all().statusCode(200)
+        requestSpec.when().get(VERSION_ENDPOINT).then().log().all().statusCode(200)
     }
 
     def "should be unauthorized if not admin"() {
@@ -77,6 +69,6 @@ class VersionInfoControllerSpec extends Specification {
         identityService.isAdmin(_) >> false
 
         expect:
-        givenBaseUri().when().get(VERSION_ENDPOINT).then().log().all().statusCode(403)
+        requestSpec.when().get(VERSION_ENDPOINT).then().log().all().statusCode(403)
     }
 }

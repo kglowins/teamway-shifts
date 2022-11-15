@@ -7,14 +7,13 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.sql.SQLException;
 import java.util.List;
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcDataSource;
 import org.h2.tools.RunScript;
 import org.h2.tools.Server;
 
-@Singleton
+
 @Slf4j
 public class H2Runner {
 
@@ -49,7 +48,7 @@ public class H2Runner {
             h2WebServer.start();
             isUp = true;
         }
-        SCRIPTS.forEach(this::runSQLScript);
+     //   SCRIPTS.forEach(this::runSQLScript);
     }
 
     public DataSource getDataSource() {

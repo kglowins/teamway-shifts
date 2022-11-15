@@ -45,6 +45,13 @@ public class Repository {
     private static final String SELECT_SHIFTS_OF_EMPLOYEE = """
         SELECT id, employee_id, shift_date, shift_window FROM shifts WHERE employee_id=:employee_id""";
 
+    private static final String WIPE_OUT = """    
+            DELETE FROM shifts;
+            DELETE FROM employees;
+            ALTER SEQUENCE employee_id_seq RESTART;
+            ALTER SEQUENCE shift_id_seq RESTART;
+        """;
+
     private static final Dctor<EmployeeDTO> EMPLOYEE_DCTOR = Dctor.of(
         field("id", EmployeeDTO::id),
         field("last_name", dto -> dto.lastName().trim())
@@ -74,6 +81,14 @@ public class Repository {
     @Inject
     public Repository(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    @SneakyThrows
+    public void wipeOutTables() {
+        log.info("Removing rows from tables and restarting sequences");
+        var connection = dataSource.getConnection();
+        var query = Query.of(WIPE_OUT);
+        query.executeInsert(connection);
     }
 
     @SneakyThrows

@@ -6,22 +6,18 @@ import io.github.kglowins.shifts.controllers.dto.ErrorMessageDTO
 import io.github.kglowins.shifts.controllers.exceptions.BadRequestException
 import io.github.kglowins.shifts.controllers.exceptions.ErrorHandler
 import io.github.kglowins.shifts.guicemodules.LocalDevModule
-import io.github.kglowins.shifts.services.GsonProvider
-import io.restassured.config.ObjectMapperConfig
-import io.restassured.mapper.ObjectMapperType
+import io.github.kglowins.shifts.guicemodules.UtilModule
+import io.github.kglowins.shifts.helpers.RequestSpecificationProvider
+import io.restassured.specification.RequestSpecification
 import spock.guice.UseModules
 import spock.lang.Specification
-
 import javax.inject.Named
-
 import static io.github.kglowins.shifts.enums.Environment.PROD
 import spock.lang.Shared
-
-import static io.restassured.RestAssured.config
-import static io.restassured.RestAssured.given
 import static spark.Spark.get
 
-@UseModules(LocalDevModule)
+
+@UseModules([UtilModule, LocalDevModule])
 class ErrorHandlerSpec extends Specification {
 
     @Shared
@@ -29,19 +25,12 @@ class ErrorHandlerSpec extends Specification {
     @Named("localhost")
     String baseUri
 
-    def givenBaseUri() {
-        return given()
-                .config(config()
-                        .objectMapperConfig(
-                                new ObjectMapperConfig(ObjectMapperType.GSON)
-                                        .gsonObjectMapperFactory(
-                                                (type, str) -> GsonProvider.provide()
-                                        )
-                        )
-                )
-                .baseUri(baseUri)
-                .log().all()
-    }
+    @Inject
+    @Shared
+    Gson gson
+
+    @Shared
+    RequestSpecification requestSpec = RequestSpecificationProvider.of(gson, baseUri)
 
     @Shared
     def TEST_ENDPOINT = "/test"
@@ -51,10 +40,10 @@ class ErrorHandlerSpec extends Specification {
         def errorHandler = new ErrorHandler(PROD)
         get(TEST_ENDPOINT, (request, response) -> {
             throw new BadRequestException("bad request")
-        }, new Gson()::toJson);
+        }, gson::toJson);
 
         when:
-        def response = givenBaseUri()
+        def response = requestSpec
                 .when()
                 .get(TEST_ENDPOINT)
                 .then()

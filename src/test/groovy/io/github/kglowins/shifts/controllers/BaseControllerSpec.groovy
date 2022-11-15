@@ -1,22 +1,23 @@
 package io.github.kglowins.shifts.controllers
 
+import com.google.gson.Gson
 import com.google.inject.Inject
 import io.github.kglowins.shifts.controllers.exceptions.ErrorHandler
-import io.github.kglowins.shifts.guicemodules.CommonModule
+import io.github.kglowins.shifts.guicemodules.ControllersModule
 import io.github.kglowins.shifts.guicemodules.LocalDevModule
-import io.github.kglowins.shifts.services.GsonProvider
-import io.restassured.config.ObjectMapperConfig
-import io.restassured.mapper.ObjectMapperType
+import io.github.kglowins.shifts.guicemodules.UtilModule
+import io.github.kglowins.shifts.helpers.RequestSpecificationProvider
+import io.github.kglowins.shifts.repository.Repository
+import io.restassured.specification.RequestSpecification
+import pl.coffeepower.guiceliquibase.GuiceLiquibaseModule
 import spock.guice.UseModules
 
 import javax.inject.Named
 import spock.lang.Shared
 import spock.lang.Specification
 
-import static io.restassured.RestAssured.given
-import static io.restassured.RestAssured.config
 
-@UseModules([CommonModule, LocalDevModule])
+@UseModules([ControllersModule, GuiceLiquibaseModule, UtilModule, LocalDevModule])
 class BaseControllerSpec extends Specification {
 
     @Shared
@@ -24,21 +25,18 @@ class BaseControllerSpec extends Specification {
     @Named("localhost")
     String baseUri
 
-    def givenBaseUri() {
-        return given()
-                .config(config()
-                        .objectMapperConfig(
-                                new ObjectMapperConfig(ObjectMapperType.GSON)
-                                .gsonObjectMapperFactory(
-                                        (type, str) -> GsonProvider.provide()
-                                )
-                        )
-                )
-                .baseUri(baseUri)
-                .log().all()
-    }
+    @Inject
+    @Shared
+    Gson gson
+
+    @Shared
+    RequestSpecification requestSpec = RequestSpecificationProvider.of(gson, baseUri)
 
     @Shared
     @Inject
     ErrorHandler errorHandler
+
+    @Shared
+    @Inject
+    Repository repository
 }
