@@ -7,7 +7,9 @@ import io.github.kglowins.shifts.guicemodules.ControllersModule
 import io.github.kglowins.shifts.guicemodules.LocalDevModule
 import io.github.kglowins.shifts.guicemodules.UtilModule
 import io.github.kglowins.shifts.helpers.RequestSpecificationProvider
+import io.github.kglowins.shifts.repository.Repository
 import io.restassured.specification.RequestSpecification
+import pl.coffeepower.guiceliquibase.GuiceLiquibaseModule
 import spock.guice.UseModules
 
 import javax.inject.Named
@@ -15,7 +17,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 
-@UseModules([ControllersModule, UtilModule, LocalDevModule])
+@UseModules([ControllersModule, GuiceLiquibaseModule, UtilModule, LocalDevModule])
 class BaseControllerSpec extends Specification {
 
     @Shared
@@ -33,4 +35,8 @@ class BaseControllerSpec extends Specification {
     @Shared
     @Inject
     ErrorHandler errorHandler
+
+    @Shared
+    @Inject
+    Repository repository
 }

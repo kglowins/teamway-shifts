@@ -6,6 +6,7 @@ import io.github.kglowins.shifts.guicemodules.ControllersModule;
 import io.github.kglowins.shifts.guicemodules.LocalDevModule;
 import io.github.kglowins.shifts.guicemodules.UtilModule;
 import lombok.extern.slf4j.Slf4j;
+import pl.coffeepower.guiceliquibase.GuiceLiquibaseModule;
 
 @Slf4j
 public class ShiftsApp {
@@ -14,6 +15,7 @@ public class ShiftsApp {
         var dependencyInjector = createInjector(
             new ControllersModule(),
             new UtilModule(),
+            new GuiceLiquibaseModule(),
             new LocalDevModule());
     }
 }

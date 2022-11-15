@@ -11,8 +11,12 @@ import io.github.kglowins.shifts.enums.Environment;
 import io.github.kglowins.shifts.services.H2Runner;
 import io.github.kglowins.shifts.services.identity.IdentityService;
 import io.github.kglowins.shifts.services.identity.MockIdentityService;
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import pl.coffeepower.guiceliquibase.GuiceLiquibaseConfig;
+import pl.coffeepower.guiceliquibase.LiquibaseConfig;
+import pl.coffeepower.guiceliquibase.annotation.GuiceLiquibaseConfiguration;
 
 
 @Slf4j
@@ -26,9 +30,19 @@ public class LocalDevModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
     public DataSource provideDataSource(H2Runner h2Runner) {
         log.info("Providing local/dev data source (h2)");
         return h2Runner.getDataSource();
+    }
+
+    @GuiceLiquibaseConfiguration
+    @Provides
+    @Inject
+    private GuiceLiquibaseConfig createLiquibaseConfig(DataSource dataSource) {
+        return GuiceLiquibaseConfig.Builder
+            .of(LiquibaseConfig.Builder.of(dataSource)
+                .withChangeLogPath("liquibase-changelog.xml")
+                .build())
+            .build();
     }
 }

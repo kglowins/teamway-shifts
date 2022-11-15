@@ -22,6 +22,12 @@ class EmployeesControllerSpec extends BaseControllerSpec {
     @Inject
     EmployeeController employeeController
 
+
+
+    def setupSpec() {
+        repository.wipeOutTables()
+    }
+
     @Unroll
     def "should add employee(s)"(lastName) {
         given:

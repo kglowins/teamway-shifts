@@ -1,6 +1,7 @@
 package io.github.kglowins.shifts.controllers
 
 import com.google.inject.Inject
+import groovy.util.logging.Slf4j
 import io.github.kglowins.shifts.controllers.dto.EmployeeDTO
 import io.github.kglowins.shifts.controllers.dto.ShiftDTO
 import io.github.kglowins.shifts.services.EmployeeService
@@ -20,6 +21,7 @@ import spock.lang.Stepwise
 import static io.restassured.http.ContentType.JSON
 
 @Stepwise
+@Slf4j
 class ShiftsControllerSpec extends BaseControllerSpec {
 
     @Shared
@@ -39,8 +41,15 @@ class ShiftsControllerSpec extends BaseControllerSpec {
 
 
     def setupSpec() {
+        repository.wipeOutTables()
+        log.info("---- >>> Adding test employees vis service...")
         employeeService.addEmployee(new EmployeeDTO(null, "Glowinski"))
         employeeService.addEmployee(new EmployeeDTO(null, "Teamway"))
+        log.info("---- >>> Added test employees vis service...")
+
+        employeeService.getEmployees().forEach(e -> log.info("--- >>   {}", e.id()))
+
+
     }
 
     @Unroll
