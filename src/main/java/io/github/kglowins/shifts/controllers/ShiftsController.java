@@ -15,8 +15,10 @@ import io.github.kglowins.shifts.controllers.dto.ShiftDTO;
 import io.github.kglowins.shifts.services.ShiftService;
 import java.util.List;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Singleton
+@Slf4j
 public class ShiftsController {
 
     private static final String V1_SHIFTS = "/v1/shifts";
@@ -39,6 +41,7 @@ public class ShiftsController {
 
     private void createGetShiftsEndpoint() {
         get(V1_SHIFTS, (request, response) -> {
+            log.info("Received GET {}", V1_SHIFTS);
             response.type(JSON_UTF_8.toString());
             return shiftService.getShifts();
         }, gson::toJson);
@@ -46,6 +49,7 @@ public class ShiftsController {
 
     private void createPostShiftEndpoint() {
         post(V1_SHIFTS, (request, response) -> {
+            log.info("Received POST {} with body: {}", V1_SHIFTS, request.body());
             ShiftDTO shiftDTO = gson.fromJson(request.body(), ShiftDTO.class);
             shiftService.addShift(shiftDTO);
             response.status(SC_CREATED);
@@ -57,6 +61,7 @@ public class ShiftsController {
         delete(V1_SHIFTS_ID, (request, response) -> {
             response.status(SC_NO_CONTENT);
             Long id = Long.parseLong(request.params("id"));
+            log.info("Received DELETE {}/{}", V1_SHIFTS, id);
             shiftService.removeShifts(List.of(id));
             response.status(SC_NO_CONTENT);
             return "";
@@ -65,6 +70,7 @@ public class ShiftsController {
 
     public void createDeleteShiftsEndpoint() {
         delete(V1_SHIFTS, (request, response) -> {
+            log.info("Received DELETE {} with body: {}", V1_SHIFTS, request.body());
             List<Long> shiftIds = Stream.of(gson.fromJson(request.body(), Long[].class)).collect(toList());
             shiftService.removeShifts(shiftIds);
             response.status(SC_NO_CONTENT);
@@ -75,6 +81,7 @@ public class ShiftsController {
     public void createGetShiftsOfEmployeeEndpoint() {
         get(V1_SHIFTS + "/employee/:id", (request, response) -> {
             Long id = Long.parseLong(request.params("id"));
+            log.info("Received GET {}/employee/{}", V1_SHIFTS, id);
             response.type(JSON_UTF_8.toString());
             return shiftService.getShiftsOfEmployee(id);
         }, gson::toJson);

@@ -42,9 +42,13 @@ public final class GuiceLiquibaseModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    /* TODO:liquibase please ignore
+            I left Liquibase code intentionally to have an example in the future
+            Note: These lines are commented to avoid issue with dependency injection
     requireBinding(LIQUIBASE_CONFIG_KEY);
     bind(LiquibaseEngine.class).to(GuiceLiquibaseEngine.class).asEagerSingleton();
     requestInjection(this);
+    */
   }
 
   @Inject

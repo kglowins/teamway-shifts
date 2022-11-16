@@ -42,14 +42,8 @@ class ShiftsControllerSpec extends BaseControllerSpec {
 
     def setupSpec() {
         repository.wipeOutTables()
-        log.info("---- >>> Adding test employees vis service...")
         employeeService.addEmployee(new EmployeeDTO(null, "Glowinski"))
         employeeService.addEmployee(new EmployeeDTO(null, "Teamway"))
-        log.info("---- >>> Added test employees vis service...")
-
-        employeeService.getEmployees().forEach(e -> log.info("--- >>   {}", e.id()))
-
-
     }
 
     @Unroll

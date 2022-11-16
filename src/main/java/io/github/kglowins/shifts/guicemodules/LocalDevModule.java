@@ -6,12 +6,10 @@ import static io.github.kglowins.shifts.enums.Environment.LOCAL_DEV;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import io.github.kglowins.shifts.enums.Environment;
 import io.github.kglowins.shifts.services.H2Runner;
 import io.github.kglowins.shifts.services.identity.IdentityService;
 import io.github.kglowins.shifts.services.identity.MockIdentityService;
-import javax.inject.Inject;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import pl.coffeepower.guiceliquibase.GuiceLiquibaseConfig;
@@ -35,6 +33,8 @@ public class LocalDevModule extends AbstractModule {
         return h2Runner.getDataSource();
     }
 
+    /* TODO left intentionally as an example for future use
+            together with whole package pl.cofeepower.guiceliquibase stolen from GitHub
     @GuiceLiquibaseConfiguration
     @Provides
     @Inject
@@ -44,5 +44,6 @@ public class LocalDevModule extends AbstractModule {
                 .withChangeLogPath("liquibase-changelog.xml")
                 .build())
             .build();
-    }
+    }*/
+
 }
