@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "16d61bb8-08e6-4fc9-9bc5-bec3cad9ab71",
+		"name": "Shifts REST API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/v1",
+			"item": [
+				{
+					"name": "/employees",
+					"item": [
+						{
+							"name": "GET /v1/employees",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:4567/v1/employees",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST/v1/employees",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"lastName\":\"Glowinski\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:4567/v1/employees",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DELETE /v1/employees/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "localhost:4567/v1/employee/1",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"employee",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/shifts",
+					"item": [
+						{
+							"name": "GET /v1/shifts",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:4567/v1/shifts",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"shifts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST /v1/shifts",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"employeeId\":1,\n    \"shiftDate\":\"2022-11-10\",\n    \"shiftWindow\": \"08-16\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:4567/v1/shifts",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"shifts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DELETE /v1/shifts",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[1, 3]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:4567/v1/shifts",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"shifts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DELETE /v1/shifts/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "localhost:4567/v1/shifts/1",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"v1",
+										"shifts",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/monitoring",
+					"item": [
+						{
+							"name": "GET /monitoring/version",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:4567/monitoring/version",
+									"host": [
+										"localhost"
+									],
+									"port": "4567",
+									"path": [
+										"monitoring",
+										"version"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

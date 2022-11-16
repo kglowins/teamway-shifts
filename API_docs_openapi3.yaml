@@ -1,0 +1,270 @@
+openapi: 3.0.3
+info:
+  title: Shifts API
+  description: |-
+    REST API for adding employees and shifts.
+  version: 1.0.0
+servers:
+  - url: http://localhost:4567/v1
+tags:
+  - name: employees
+    description: CRUD for employees
+  - name: shifts
+    description: CRUD for shifts
+  - name: monitoring
+    description: Admin endpoints for app monitoring
+paths:
+  /employees:
+    post:
+      tags:
+        - employees
+      summary: Add a new employee
+      operationId: addEmployee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeWoId'
+        required: true
+      responses:
+        '201':
+          description: Successfully added
+        '400':
+          description: Invalid request body
+    get:
+      tags:
+        - employees
+      summary: Get list of employees
+      operationId: getEmployees
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employees'
+  /employees/{employeeId}:
+    get:
+      tags:
+        - employees
+      summary: Get employee
+      operationId: getEmployee
+      parameters:
+        - name: employeeId
+          in: path
+          description: id of employee
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          description: Employee of given id does not exist
+    delete:
+      tags:
+        - employees
+      summary: Delete employee
+      operationId: deleteEmployee
+      parameters:
+        - name: employeeId
+          in: path
+          description: id of employee
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '204':
+          description: Success
+        '404':
+          description: Employee of given id does not exist
+  /shifts:
+    post:
+      tags:
+        - shifts
+      summary: Add a new shift
+      operationId: addShift
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftWoId'
+        required: true
+      responses:
+        '201':
+          description: Successfully added
+        '400':
+          description: Invalid request body
+    get:
+      tags:
+        - shifts
+      summary: Get list of shifts
+      operationId: getShifts
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shifts'
+    delete:
+      tags:
+        - shifts
+      summary: Delete multiple shifts
+      operationId: deleteShifts
+      description: Provide a list of shift IDs in the request body, e.g., [1, 2]
+      responses:
+        '204':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shifts'
+  /shifts/{shiftId}:
+    get:
+      tags:
+        - shifts
+      summary: Get shift
+      operationId: getShift
+      parameters:
+        - name: shiftId
+          in: path
+          description: id of shift
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+        '404':
+          description: Employee of given id does not exist
+    delete:
+      tags:
+        - shifts
+      summary: Delete shift
+      operationId: deleteShift
+      parameters:
+        - name: shiftId
+          in: path
+          description: id of shift
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '204':
+          description: Success
+        '404':
+          description: Shift of given id does not exist
+  /shifts/employee/{employeeId}:
+    get:
+      tags:
+        - shifts
+      summary: Get shifts of a given employee
+      operationId: getShiftsByEmployee
+      parameters:
+        - name: employeeId
+          in: path
+          description: id of employee
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+        '404':
+          description: Employee of given id does not exist
+
+  /monitoring/version:
+    get:
+      tags:
+        - monitoring
+      summary: Get version information
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: No permission
+components:
+  schemas:
+    EmployeeWoId:
+      type: object
+      properties:
+        last_name:
+          type: string
+          example: "Glowinski"
+    Employee:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        last_name:
+          type: string
+          example: "Glowinski"
+    Employees:
+      type: array
+      items:
+        $ref: '#/components/schemas/Employee'
+    ShiftWoId:
+      type: object
+      properties:
+        employee_id:
+          type: integer
+          format: int64
+          example: 1
+        shift_date:
+          type: string
+          format: date
+        shift_window:
+          type: string
+          enum:
+            - 00-08
+            - 08-16
+            - 16-24
+    Shift:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        employee_id:
+          type: integer
+          format: int64
+          example: 1
+        shift_date:
+          type: string
+          format: date
+        shift_window:
+          type: string
+          enum:
+            - 00-08
+            - 08-16
+            - 16-24
+    Shifts:
+      type: array
+      items:
+        $ref: '#/components/schemas/Shift'
